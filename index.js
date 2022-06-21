@@ -17,6 +17,14 @@ function getConfig(blockchain,network){
             }
             
         }
+        case 'polygon':{
+            switch(network){
+                case 'testnet':{
+                    return {contractAddress: contractAddresses.POLYGON_TESTNET, rpcProvider: contractAddresses.POLYGON_TESTNET_API};
+                }
+                default:{throw new Error(`${network} is not supported`);}
+            }
+        }
         default:{throw new Error(`${blockchain} is not supported`);}
     }
 

@@ -7,7 +7,7 @@ This library allows you to send bulk Transactions. It uses smart contracts.
 Install:
 
 ```shell
-npm Install shops-bulk-transactions
+npm install shops-bulk-transactions
 
 ```
 
