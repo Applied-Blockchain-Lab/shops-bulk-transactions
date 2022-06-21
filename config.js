@@ -1,0 +1,4 @@
+const AVALANCHE_TESTNET = '0x21c0a8ABa33387E0293F9B76F3B33be807c4F592';
+const AVALANCHE_TESTNET_API = 'https://api.avax-test.network/ext/bc/C/rpc';
+
+export  {AVALANCHE_TESTNET,AVALANCHE_TESTNET_API};
