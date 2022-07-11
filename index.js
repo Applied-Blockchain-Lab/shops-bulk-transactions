@@ -81,19 +81,19 @@ export async function sellerProccessTransaction(blockchain,network,client,value)
     return tx;
 }
 
-export async function clientCheckOrders(blockchain,network){
+export async function clientCheckOrders(blockchain,network,address){
     let config =getConfig(blockchain,network);
     const provider = ethers.getDefaultProvider(config.rpcProvider);
     const contract = new ethers.Contract(config.contractAddress, ShopsBulkTransactions.abi, provider);
-    let tx = await contract.populateTransaction.clientCheckOrders();
+    let tx = await contract.clientCheckOrders(address);
     return tx;
 }
 
-export async function sellerCheckOrders(blockchain,network){
+export async function sellerCheckOrders(blockchain,network,address){
     let config =getConfig(blockchain,network);
     const provider = ethers.getDefaultProvider(config.rpcProvider);
     const contract = new ethers.Contract(config.contractAddress, ShopsBulkTransactions.abi, provider);
-    let tx = await contract.populateTransaction.sellerCheckOrders();
+    let tx = await contract.sellerCheckOrders(address);
     return tx;
 }
 
