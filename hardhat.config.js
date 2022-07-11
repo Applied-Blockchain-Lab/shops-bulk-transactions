@@ -1,8 +1,8 @@
 require("@nomiclabs/hardhat-waffle");
 
+const fs = require('fs');
 
-
-
+const privateKey = fs.readFileSync('.secret').toString().trim();
 
 const avalanche_testnet = 'https://api.avax-test.network/ext/bc/C/rpc';
 const polygon_testnet='https://rpc-mumbai.maticvigil.com/';

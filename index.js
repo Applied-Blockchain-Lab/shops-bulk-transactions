@@ -13,7 +13,7 @@ function getConfig(blockchain,network){
                 case 'testnet':{
                     return {contractAddress: contractAddresses.AVALANCHE_TESTNET, rpcProvider: contractAddresses.AVALANCHE_TESTNET_API};
                 }
-                default:{throw new Error(`${network} is not supported`);}
+                
             }
             
         }
@@ -22,10 +22,10 @@ function getConfig(blockchain,network){
                 case 'testnet':{
                     return {contractAddress: contractAddresses.POLYGON_TESTNET, rpcProvider: contractAddresses.POLYGON_TESTNET_API};
                 }
-                default:{throw new Error(`${network} is not supported`);}
+               
             }
         }
-        default:{throw new Error(`${blockchain} is not supported`);}
+        
     }
 
 }
@@ -46,6 +46,56 @@ function getConfig(blockchain,network){
 }
 
 
+export async function clientProccessTransaction(blockchain,network,seller,value){
+    let config =getConfig(blockchain,network);
+    const provider = ethers.getDefaultProvider(config.rpcProvider);
+    const contract = new ethers.Contract(config.contractAddress, ShopsBulkTransactions.abi, provider);
+
+    let tx = await contract.populateTransaction.clientProccessTransaction(seller,value);
+    return tx;
+}
+
+export async function clientRevertTransaction(blockchain,network,seller,value){
+    let config =getConfig(blockchain,network);
+    const provider = ethers.getDefaultProvider(config.rpcProvider);
+    const contract = new ethers.Contract(config.contractAddress, ShopsBulkTransactions.abi, provider);
+
+    let tx = await contract.populateTransaction.clientRevertTransaction(seller,value);
+    return tx;
+}
+
+export async function sellerRevertTransaction(blockchain,network,client,value){
+    let config =getConfig(blockchain,network);
+    const provider = ethers.getDefaultProvider(config.rpcProvider);
+    const contract = new ethers.Contract(config.contractAddress, ShopsBulkTransactions.abi, provider);
+
+    let tx = await contract.populateTransaction.sellerRevertTransaction(client,value);
+    return tx;
+}
+
+export async function sellerProccessTransaction(blockchain,network,client,value){
+    let config =getConfig(blockchain,network);
+    const provider = ethers.getDefaultProvider(config.rpcProvider);
+    const contract = new ethers.Contract(config.contractAddress, ShopsBulkTransactions.abi, provider);
+    let tx = await contract.populateTransaction.sellerProccessTransaction(client,value);
+    return tx;
+}
+
+export async function clientCheckOrders(blockchain,network){
+    let config =getConfig(blockchain,network);
+    const provider = ethers.getDefaultProvider(config.rpcProvider);
+    const contract = new ethers.Contract(config.contractAddress, ShopsBulkTransactions.abi, provider);
+    let tx = await contract.populateTransaction.clientCheckOrders();
+    return tx;
+}
+
+export async function sellerCheckOrders(blockchain,network){
+    let config =getConfig(blockchain,network);
+    const provider = ethers.getDefaultProvider(config.rpcProvider);
+    const contract = new ethers.Contract(config.contractAddress, ShopsBulkTransactions.abi, provider);
+    let tx = await contract.populateTransaction.sellerCheckOrders();
+    return tx;
+}
 
 
 
