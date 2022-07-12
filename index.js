@@ -30,7 +30,7 @@ function getConfig(blockchain,network){
 
 }
 
- export async function sendBulkTransaction(blockchain,network,addresses,amounts){
+ export async function sendBulkTransaction(blockchain,network,addresses,amounts,hashes){
     let config =getConfig(blockchain,network);
     const provider = ethers.getDefaultProvider(config.rpcProvider);
     const contract = new ethers.Contract(config.contractAddress, ShopsBulkTransactions.abi, provider);
@@ -41,7 +41,7 @@ function getConfig(blockchain,network){
       }
 
 
-    let tx = await contract.populateTransaction.multiTransfer(addresses,amounts,{value:totalAmount});
+    let tx = await contract.populateTransaction.multiTransfer(addresses,amounts,hashes,{value:totalAmount});
     return tx;  
 }
 
