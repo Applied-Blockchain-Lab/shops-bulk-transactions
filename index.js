@@ -1,5 +1,5 @@
 import { ethers, BigNumber, VoidSigner } from 'ethers';
-import  ShopsBulkTransactions from './artifacts/contracts/ShopsBulkTransactions.sol/ShopsBulkTransactions.json' assert {type: "json"};
+import  ShopsBulkTransactions from './artifacts/contracts/ShopsBulkTransactions.sol/ShopsBulkTransactions.json' ;
 import * as contractAddresses from './config.js';
 
 

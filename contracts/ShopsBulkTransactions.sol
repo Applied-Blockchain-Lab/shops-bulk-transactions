@@ -160,7 +160,7 @@ struct Order{
             
     }
 
-    function checkDecisions(Order memory order) internal nonReentrant returns (uint8){
+    function checkDecisions(Order memory order) internal pure returns (uint8){
             if(order.clientDecision==order.sellerDecision){
                 return order.clientDecision;
             }else{
