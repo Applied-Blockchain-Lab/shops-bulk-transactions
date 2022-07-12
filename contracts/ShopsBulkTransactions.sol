@@ -8,6 +8,7 @@ contract ShopsBulkTransactions is ReentrancyGuard {
 
 
 struct Order{
+    string product_hash;
     uint value;
     address client;
     address sellar;
@@ -16,6 +17,7 @@ struct Order{
     //2 - return money to client
     uint8 clientDecision;
     uint8 sellerDecision;
+    bool active;
 }
 
  mapping(bytes32 => Order[]) activeOrders;
@@ -47,63 +49,67 @@ struct Order{
 
 
 
-     function sellerProccessTransaction(address client,uint value) external nonReentrant{
-           sellerDecision(client, value, 1);
+     function sellerProccessTransaction(address client,uint value, string calldata productHash) external nonReentrant{
+           sellerDecision(client, value, 1,productHash);
             
     }
 
-     function sellerRevertTransaction(address client,uint value) external nonReentrant{
-           sellerDecision(client, value, 2);
+     function sellerRevertTransaction(address client,uint value, string calldata productHash) external nonReentrant{
+           sellerDecision(client, value, 2, productHash);
     }
 
-     function  sellerDecision(address client,uint value,uint8 sellerChoice) internal nonReentrant{
+     function  sellerDecision(address client,uint value,uint8 sellerChoice, string calldata productHash) internal nonReentrant{
             bytes32 index = keccak256(abi.encodePacked(client,msg.sender));
-            Order[] memory products = activeOrders[index];
-            for (uint256 i = 0; i <  products.length; i++) {
-                    if(products[i].value==value){
-                         require(products[i].client== msg.sender, "You are not the seller.");
-                        products[i].sellerDecision=sellerChoice;
-                        uint8 decision = checkDecisions(products[i]);
+            for (uint256 i = 0; i <  activeOrders[index].length; i++) {
+                    if((keccak256(bytes(activeOrders[index][i].product_hash)) == keccak256(bytes(productHash))) && (activeOrders[index][i].value==value) && (activeOrders[index][i].active==true)){
+                         require(activeOrders[index][i].client== msg.sender, "You are not the seller.");
+                        activeOrders[index][i].sellerDecision=sellerChoice;
+                        uint8 decision = checkDecisions(activeOrders[index][i]);
                         if (decision==1){
-                            _safeCall(payable(products[i].sellar), products[i].value);
+                            activeOrders[index][i].active=false;
+                            _safeCall(payable(activeOrders[index][i].sellar), activeOrders[index][i].value);
                         }
                         else if (decision==2){
-                            _safeCall(payable(products[i].client), products[i].value);
+                            activeOrders[index][i].active=false;
+                            _safeCall(payable(activeOrders[index][i].client), activeOrders[index][i].value);
                         }
                         break;
                     }
             }
+          
     }
 
 
 
 
-    function clientProccessTransaction(address seller,uint value) external nonReentrant{
-           clientDecision(seller, value, 1);
+    function clientProccessTransaction(address seller,uint value, string calldata productHash) external nonReentrant{
+           clientDecision(seller, value, 1, productHash);
             
     }
 
-     function clientRevertTransaction(address seller,uint value) external nonReentrant{
-           clientDecision(seller, value, 2);
+     function clientRevertTransaction(address seller,uint value, string calldata productHash) external nonReentrant{
+           clientDecision(seller, value, 2, productHash);
     }
 
-     function  clientDecision(address seller,uint value,uint8 clientChoice) internal nonReentrant{
+     function  clientDecision(address seller,uint value,uint8 clientChoice, string calldata productHash) internal nonReentrant{
             bytes32 index = keccak256(abi.encodePacked(msg.sender,seller));
-            Order[] memory products = activeOrders[index];
-            for (uint256 i = 0; i <  products.length; i++) {
-                    if(products[i].value==value){
-                         require(products[i].client== msg.sender, "You are not the client.");
-                        products[i].clientDecision=clientChoice;
-                        uint8 decision = checkDecisions(products[i]);
+            for (uint256 i = 0; i <  activeOrders[index].length; i++) {
+                    if((keccak256(bytes(activeOrders[index][i].product_hash)) == keccak256(bytes(productHash))) && (activeOrders[index][i].value==value) && (activeOrders[index][i].active==true)){
+                         require(activeOrders[index][i].client== msg.sender, "You are not the client.");
+                        activeOrders[index][i].clientDecision=clientChoice;
+                        uint8 decision = checkDecisions(activeOrders[index][i]);
                         if (decision==1){
-                            _safeCall(payable(products[i].sellar), products[i].value);
+                             activeOrders[index][i].active=false;
+                            _safeCall(payable(activeOrders[index][i].sellar), activeOrders[index][i].value);
                         }
                         else if (decision==2){
-                            _safeCall(payable(products[i].client), products[i].value);
+                             activeOrders[index][i].active=false;
+                            _safeCall(payable(activeOrders[index][i].client), activeOrders[index][i].value);
                         }
                         break;
                     }
             }
+            
     }
 
     function checkDecisions(Order memory order) internal nonReentrant returns (uint8){
@@ -153,12 +159,28 @@ struct Order{
     }
 
 
-
+    function checkProductOrders(address seller, string calldata productHash) external view returns(uint){
+      uint count=0;
+        bytes32[] memory indexes = sellers[seller];
+       
+        uint ordersIndex=0;
+           for(uint i =0;i< indexes.length;i++){
+            Order[] memory currentOrders=activeOrders[indexes[i]];
+            for(uint j =0;j<currentOrders.length;j++){
+                    if(keccak256(bytes(currentOrders[i].product_hash)) == keccak256(bytes(productHash))){
+                        count++;
+                    }
+                    ordersIndex++;
+            }
+        }
+        return count;
+    }
 
 
     function multiTransfer(
         address payable[] memory _addresses,
-        uint256[] memory _amounts
+        uint256[] memory _amounts,
+        string[] memory _productHashes
     ) public payable nonReentrant {
         require(
             _addresses.length == _amounts.length,
@@ -181,6 +203,8 @@ struct Order{
             o.sellerDecision=1;
             o.clientDecision=0;
             o.value=_amounts[i];
+            o.product_hash=_productHashes[i];
+            o.active=true;
             bytes32 index = keccak256(abi.encodePacked(msg.sender,_addresses[i]));
             activeOrders[index].push(o);
             clients[msg.sender].push(index);
