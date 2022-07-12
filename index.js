@@ -46,38 +46,38 @@ function getConfig(blockchain,network){
 }
 
 
-export async function clientProccessTransaction(blockchain,network,seller,value,productHash){
+export async function clientProccessTransaction(blockchain,network,sellers,values,productHashes){
     let config =getConfig(blockchain,network);
     const provider = ethers.getDefaultProvider(config.rpcProvider);
     const contract = new ethers.Contract(config.contractAddress, ShopsBulkTransactions.abi, provider);
 
-    let tx = await contract.populateTransaction.clientProccessTransaction(seller,value,productHash);
+    let tx = await contract.populateTransaction.clientProccessTransaction(sellers,values,productHashes);
     return tx;
 }
 
-export async function clientRevertTransaction(blockchain,network,seller,value,productHash){
+export async function clientRevertTransaction(blockchain,network,sellers,values,productHashes){
     let config =getConfig(blockchain,network);
     const provider = ethers.getDefaultProvider(config.rpcProvider);
     const contract = new ethers.Contract(config.contractAddress, ShopsBulkTransactions.abi, provider);
 
-    let tx = await contract.populateTransaction.clientRevertTransaction(seller,value,productHash);
+    let tx = await contract.populateTransaction.clientRevertTransaction(sellers,values,productHashes);
     return tx;
 }
 
-export async function sellerRevertTransaction(blockchain,network,client,value,productHash){
+export async function sellerRevertTransaction(blockchain,network,clients,values,productHashes){
     let config =getConfig(blockchain,network);
     const provider = ethers.getDefaultProvider(config.rpcProvider);
     const contract = new ethers.Contract(config.contractAddress, ShopsBulkTransactions.abi, provider);
 
-    let tx = await contract.populateTransaction.sellerRevertTransaction(client,value,productHash);
+    let tx = await contract.populateTransaction.sellerRevertTransaction(clients,values,productHashes);
     return tx;
 }
 
-export async function sellerProccessTransaction(blockchain,network,client,value,productHash){
+export async function sellerProccessTransaction(blockchain,network,clients,values,productHashes){
     let config =getConfig(blockchain,network);
     const provider = ethers.getDefaultProvider(config.rpcProvider);
     const contract = new ethers.Contract(config.contractAddress, ShopsBulkTransactions.abi, provider);
-    let tx = await contract.populateTransaction.sellerProccessTransaction(client,value,productHash);
+    let tx = await contract.populateTransaction.sellerProccessTransaction(clients,values,productHashes);
     return tx;
 }
 

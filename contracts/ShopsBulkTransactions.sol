@@ -49,16 +49,38 @@ struct Order{
 
 
 
-     function sellerProccessTransaction(address client,uint value, string calldata productHash) external nonReentrant{
-           sellerDecision(client, value, 1,productHash);
+     function sellerProccessTransaction(address[] memory _clients,uint[] memory  _values, string[] memory _productHashes) external nonReentrant{
+        require(
+            _clients.length == _values.length,
+            "Addresses length must be equal to values length"
+        );
+           require(
+            _clients.length == _productHashes.length,
+            "Addresses length must be equal to product hashes length"
+        );
+         for (uint256 i = 0; i < _clients.length; i++) {
+
+           sellerDecision(_clients[i], _values[i], 1,_productHashes[i]);
+         }
             
     }
 
-     function sellerRevertTransaction(address client,uint value, string calldata productHash) external nonReentrant{
-           sellerDecision(client, value, 2, productHash);
+     function sellerRevertTransaction(address[] memory _clients,uint[] memory  _values, string[] memory _productHashes) external nonReentrant{
+            require(
+            _clients.length == _values.length,
+            "Addresses length must be equal to values length"
+        );
+           require(
+            _clients.length == _productHashes.length,
+            "Addresses length must be equal to product hashes length"
+        );
+         for (uint256 i = 0; i < _clients.length; i++) {
+
+           sellerDecision(_clients[i], _values[i], 2,_productHashes[i]);
+         }
     }
 
-     function  sellerDecision(address client,uint value,uint8 sellerChoice, string calldata productHash) internal nonReentrant{
+     function  sellerDecision(address client,uint value,uint8 sellerChoice, string memory productHash) internal nonReentrant{
             bytes32 index = keccak256(abi.encodePacked(client,msg.sender));
             for (uint256 i = 0; i <  activeOrders[index].length; i++) {
                     if((keccak256(bytes(activeOrders[index][i].product_hash)) == keccak256(bytes(productHash))) && (activeOrders[index][i].value==value) && (activeOrders[index][i].active==true)){
@@ -82,16 +104,42 @@ struct Order{
 
 
 
-    function clientProccessTransaction(address seller,uint value, string calldata productHash) external nonReentrant{
-           clientDecision(seller, value, 1, productHash);
+    function clientProccessTransaction(address[] memory _sellers,uint[] memory _values, string[] memory _productHashes) external nonReentrant{
+         require(
+            _sellers.length == _values.length,
+            "Addresses length must be equal to values length"
+        );
+           require(
+            _sellers.length == _productHashes.length,
+            "Addresses length must be equal to product hashes length"
+        );
+         for (uint256 i = 0; i < _sellers.length; i++) {
+
+           
+           clientDecision(_sellers[i], _values[i], 1, _productHashes[i]);
+         }
+           
             
     }
 
-     function clientRevertTransaction(address seller,uint value, string calldata productHash) external nonReentrant{
-           clientDecision(seller, value, 2, productHash);
+     function clientRevertTransaction(address[] memory _sellers,uint[] memory _values, string[] memory _productHashes) external nonReentrant{
+             require(
+            _sellers.length == _values.length,
+            "Addresses length must be equal to values length"
+        );
+           require(
+            _sellers.length == _productHashes.length,
+            "Addresses length must be equal to product hashes length"
+        );
+         for (uint256 i = 0; i < _sellers.length; i++) {
+
+           
+           clientDecision(_sellers[i], _values[i], 2, _productHashes[i]);
+         }
+          
     }
 
-     function  clientDecision(address seller,uint value,uint8 clientChoice, string calldata productHash) internal nonReentrant{
+     function  clientDecision(address seller,uint value,uint8 clientChoice, string memory productHash) internal nonReentrant{
             bytes32 index = keccak256(abi.encodePacked(msg.sender,seller));
             for (uint256 i = 0; i <  activeOrders[index].length; i++) {
                     if((keccak256(bytes(activeOrders[index][i].product_hash)) == keccak256(bytes(productHash))) && (activeOrders[index][i].value==value) && (activeOrders[index][i].active==true)){
@@ -207,8 +255,10 @@ struct Order{
             o.active=true;
             bytes32 index = keccak256(abi.encodePacked(msg.sender,_addresses[i]));
             activeOrders[index].push(o);
+            if(activeOrders[index].length==1){
             clients[msg.sender].push(index);
             sellers[_addresses[i]].push(index);
+            }
         }
 
         emit MultiTransfer(constTotal, true);
