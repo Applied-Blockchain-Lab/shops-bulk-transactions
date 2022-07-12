@@ -80,7 +80,7 @@ struct Order{
          }
     }
 
-     function  sellerDecision(address client,uint value,uint8 sellerChoice, string memory productHash) internal nonReentrant{
+     function  sellerDecision(address client,uint value,uint8 sellerChoice, string memory productHash) internal {
             bytes32 index = keccak256(abi.encodePacked(client,msg.sender));
             for (uint256 i = 0; i <  activeOrders[index].length; i++) {
                     if((keccak256(bytes(activeOrders[index][i].product_hash)) == keccak256(bytes(productHash))) && (activeOrders[index][i].value==value) && (activeOrders[index][i].active==true)){
@@ -139,7 +139,7 @@ struct Order{
           
     }
 
-     function  clientDecision(address seller,uint value,uint8 clientChoice, string memory productHash) internal nonReentrant{
+     function  clientDecision(address seller,uint value,uint8 clientChoice, string memory productHash) internal {
             bytes32 index = keccak256(abi.encodePacked(msg.sender,seller));
             for (uint256 i = 0; i <  activeOrders[index].length; i++) {
                     if((keccak256(bytes(activeOrders[index][i].product_hash)) == keccak256(bytes(productHash))) && (activeOrders[index][i].value==value) && (activeOrders[index][i].active==true)){
