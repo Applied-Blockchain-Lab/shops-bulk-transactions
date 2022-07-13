@@ -84,7 +84,7 @@ struct Order{
             bytes32 index = keccak256(abi.encodePacked(client,msg.sender));
             for (uint256 i = 0; i <  activeOrders[index].length; i++) {
                     if((keccak256(bytes(activeOrders[index][i].product_hash)) == keccak256(bytes(productHash))) && (activeOrders[index][i].value==value) && (activeOrders[index][i].active==true)){
-                         require(activeOrders[index][i].client== msg.sender, "You are not the seller.");
+                         require(activeOrders[index][i].sellar== msg.sender, "You are not the seller.");
                         activeOrders[index][i].sellerDecision=sellerChoice;
                         uint8 decision = checkDecisions(activeOrders[index][i]);
                         if (decision==1){

@@ -119,10 +119,11 @@ export async function sellerCheckActiveOrders(blockchain,network,address){
 }
 
 
-export async function checkProductOrders(blockchain,network,seller,productHash){
+export async function checkProductOrders(blockchain,network,address,seller,productHash){
     let config =getConfig(blockchain,network);
     const provider = ethers.getDefaultProvider(config.rpcProvider);
-    const contract = new ethers.Contract(config.contractAddress, ShopsBulkTransactions.abi, provider);
+    const signer = new VoidSigner(address,provider);
+    const contract = new ethers.Contract(config.contractAddress, ShopsBulkTransactions.abi, signer);
     let tx = await contract.checkProductOrders(seller,productHash);
     return tx;
 }
