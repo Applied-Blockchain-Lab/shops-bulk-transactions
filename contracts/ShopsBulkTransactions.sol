@@ -206,6 +206,60 @@ struct Order{
         return orders;
     }
 
+     function clientCheckActiveOrders() external view returns(Order[] memory){
+        uint count=0;
+        bytes32[] memory indexes = clients[msg.sender];
+       
+        uint ordersIndex=0;
+           for(uint i =0;i< indexes.length;i++){
+            Order[] memory currentOrders=activeOrders[indexes[i]];
+            for(uint j =0;j<currentOrders.length;j++){
+                if(currentOrders[j].active){
+                    count++;
+                    
+                    }
+            }
+        }
+         Order[] memory orders=new Order[](count);
+              for(uint i =0;i< indexes.length;i++){
+            Order[] memory currentOrders=activeOrders[indexes[i]];
+            for(uint j =0;j<currentOrders.length;j++){
+                if(currentOrders[j].active){
+                    
+                    orders[ordersIndex]=currentOrders[j];
+                    ordersIndex++;}
+            }
+        }
+        return orders;
+    }
+
+    function sellerCheckActiveOrders() external view returns(Order[] memory){
+        uint count=0;
+        bytes32[] memory indexes = sellers[msg.sender];
+       
+        uint ordersIndex=0;
+           for(uint i =0;i< indexes.length;i++){
+            Order[] memory currentOrders=activeOrders[indexes[i]];
+            for(uint j =0;j<currentOrders.length;j++){
+                if(currentOrders[j].active){
+                    count++;
+                    
+                    }
+            }
+        }
+         Order[] memory orders=new Order[](count);
+              for(uint i =0;i< indexes.length;i++){
+            Order[] memory currentOrders=activeOrders[indexes[i]];
+            for(uint j =0;j<currentOrders.length;j++){
+                if(currentOrders[j].active){
+                    
+                    orders[ordersIndex]=currentOrders[j];
+                    ordersIndex++;}
+            }
+        }
+        return orders;
+    }
+
 
     function checkProductOrders(address seller, string calldata productHash) external view returns(uint){
       uint count=0;

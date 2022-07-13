@@ -90,12 +90,31 @@ export async function clientCheckOrders(blockchain,network,address){
     return tx;
 }
 
+export async function clientCheckActiveOrders(blockchain,network,address){
+    let config =getConfig(blockchain,network);
+    const provider = ethers.getDefaultProvider(config.rpcProvider);
+    const signer = new VoidSigner(address,provider);
+    const contract = new ethers.Contract(config.contractAddress, ShopsBulkTransactions.abi, signer);
+    let tx = await contract.clientCheckActiveOrders();
+    return tx;
+}
+
 export async function sellerCheckOrders(blockchain,network,address){
     let config =getConfig(blockchain,network);
     const provider = ethers.getDefaultProvider(config.rpcProvider);
     const signer = new VoidSigner(address,provider);
     const contract = new ethers.Contract(config.contractAddress, ShopsBulkTransactions.abi, signer);
     let tx = await contract.sellerCheckOrders();
+    return tx;
+}
+
+
+export async function sellerCheckActiveOrders(blockchain,network,address){
+    let config =getConfig(blockchain,network);
+    const provider = ethers.getDefaultProvider(config.rpcProvider);
+    const signer = new VoidSigner(address,provider);
+    const contract = new ethers.Contract(config.contractAddress, ShopsBulkTransactions.abi, signer);
+    let tx = await contract.sellerCheckActiveOrders();
     return tx;
 }
 
