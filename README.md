@@ -12,12 +12,13 @@ npm install shops-bulk-transactions
 ```
 
 Import in project:
-```js
-import {sendBulkTransaction} from 'shops-bulk-transactions';
 
+```js
+import { sendBulkTransaction } from "shops-bulk-transactions";
 ```
 
 Use:
+
 ```js
 //let unsignedTransaction = await sendBulkTransaction('blockchain','network(mainnet,testnet ..)',
 //[array with addresses],[array with ammounts]));
@@ -30,6 +31,3 @@ let unsignedTransaction = await sendBulkTransaction('avalanche','testnet',
 cf6F013d9363'],[100,100]));
 //You need to sign and send the transaction after this.
 ```
-
-
-

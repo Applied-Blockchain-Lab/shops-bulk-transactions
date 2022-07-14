@@ -14,8 +14,10 @@ async function main() {
   // await hre.run('compile');
 
   // We get the contract to deploy
-  const ShopsBulkTransactions = await hre.ethers.getContractFactory("ShopsBulkTransactions");
-  const bulkTransactions = await ShopsBulkTransactions.deploy('MATIC');
+  const ShopsBulkTransactions = await hre.ethers.getContractFactory(
+    "ShopsBulkTransactions"
+  );
+  const bulkTransactions = await ShopsBulkTransactions.deploy("MATIC");
 
   await bulkTransactions.deployed();
 
