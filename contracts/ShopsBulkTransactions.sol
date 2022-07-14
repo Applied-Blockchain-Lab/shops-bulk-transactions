@@ -292,7 +292,7 @@ contract ShopsBulkTransactions is ReentrancyGuard {
             Order[] memory currentOrders = activeOrders[indexes[i]];
             for (uint256 j = 0; j < currentOrders.length; j++) {
                 if (
-                    keccak256(bytes(currentOrders[i].product_hash)) ==
+                    keccak256(bytes(currentOrders[j].product_hash)) ==
                     keccak256(bytes(productHash))
                 ) {
                     count++;
