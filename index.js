@@ -2,7 +2,7 @@ import { ethers, BigNumber, VoidSigner } from "ethers";
 import ShopsBulkTransactions from "./artifacts/contracts/ShopsBulkTransactions.sol/ShopsBulkTransactions.json";
 import * as contractAddresses from "./config.js";
 
-function getConfig (blockchain, network) {
+function getConfig(blockchain, network) {
   switch (blockchain) {
     case "avalanche": {
       switch (network) {
@@ -27,7 +27,7 @@ function getConfig (blockchain, network) {
   }
 }
 
-export async function sendBulkTransaction (
+export async function sendBulkTransaction(
   blockchain,
   network,
   addresses,
@@ -56,7 +56,7 @@ export async function sendBulkTransaction (
   return tx;
 }
 
-export async function clientProccessTransaction (
+export async function clientProccessTransaction(
   blockchain,
   network,
   sellers,
@@ -79,7 +79,7 @@ export async function clientProccessTransaction (
   return tx;
 }
 
-export async function clientRevertTransaction (
+export async function clientRevertTransaction(
   blockchain,
   network,
   sellers,
@@ -102,7 +102,7 @@ export async function clientRevertTransaction (
   return tx;
 }
 
-export async function sellerRevertTransaction (
+export async function sellerRevertTransaction(
   blockchain,
   network,
   clients,
@@ -125,7 +125,7 @@ export async function sellerRevertTransaction (
   return tx;
 }
 
-export async function sellerProccessTransaction (
+export async function sellerProccessTransaction(
   blockchain,
   network,
   clients,
@@ -147,7 +147,7 @@ export async function sellerProccessTransaction (
   return tx;
 }
 
-export async function clientCheckOrders (blockchain, network, address) {
+export async function clientCheckOrders(blockchain, network, address) {
   const config = getConfig(blockchain, network);
   const provider = ethers.getDefaultProvider(config.rpcProvider);
   const signer = new VoidSigner(address, provider);
@@ -160,7 +160,7 @@ export async function clientCheckOrders (blockchain, network, address) {
   return tx;
 }
 
-export async function clientCheckActiveOrders (blockchain, network, address) {
+export async function clientCheckActiveOrders(blockchain, network, address) {
   const config = getConfig(blockchain, network);
   const provider = ethers.getDefaultProvider(config.rpcProvider);
   const signer = new VoidSigner(address, provider);
@@ -173,7 +173,7 @@ export async function clientCheckActiveOrders (blockchain, network, address) {
   return tx;
 }
 
-export async function sellerCheckOrders (blockchain, network, address) {
+export async function sellerCheckOrders(blockchain, network, address) {
   const config = getConfig(blockchain, network);
   const provider = ethers.getDefaultProvider(config.rpcProvider);
   const signer = new VoidSigner(address, provider);
@@ -186,7 +186,7 @@ export async function sellerCheckOrders (blockchain, network, address) {
   return tx;
 }
 
-export async function sellerCheckActiveOrders (blockchain, network, address) {
+export async function sellerCheckActiveOrders(blockchain, network, address) {
   const config = getConfig(blockchain, network);
   const provider = ethers.getDefaultProvider(config.rpcProvider);
   const signer = new VoidSigner(address, provider);
@@ -199,7 +199,7 @@ export async function sellerCheckActiveOrders (blockchain, network, address) {
   return tx;
 }
 
-export async function checkProductOrders (
+export async function checkProductOrders(
   blockchain,
   network,
   address,
