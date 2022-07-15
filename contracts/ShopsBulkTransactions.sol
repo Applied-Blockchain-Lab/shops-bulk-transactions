@@ -1,8 +1,6 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.4;
 
-
-
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 contract ShopsBulkTransactions is ReentrancyGuard {
@@ -155,7 +153,6 @@ contract ShopsBulkTransactions is ReentrancyGuard {
             _clients.length == _productHashes.length,
             "Addresses length must be equal to product hashes length"
         );
-       
 
         for (uint256 i = 0; i < _clients.length; i++) {
             sellerDecision(_clients[i], _values[i], 1, _productHashes[i]);
@@ -200,7 +197,7 @@ contract ShopsBulkTransactions is ReentrancyGuard {
                 );
                 activeOrders[index][i].sellerDecision = sellerChoice;
                 uint8 decision = checkDecisions(activeOrders[index][i]);
-                
+
                 if (decision == 1) {
                     activeOrders[index][i].active = false;
                     _safeCall(
@@ -217,7 +214,6 @@ contract ShopsBulkTransactions is ReentrancyGuard {
                     activeOrders[index][i].deadline < block.timestamp &&
                     activeOrders[index][i].clientDecision == 0
                 ) {
-                  
                     activeOrders[index][i].active = false;
                     _safeCall(
                         payable(activeOrders[index][i].seller),

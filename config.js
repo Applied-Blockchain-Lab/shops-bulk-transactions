@@ -1,6 +1,6 @@
-const AVALANCHE_TESTNET = "0x754b7bcA2825139b3a0b399aC4bbC147dB1bB79A";
+const AVALANCHE_TESTNET = "0xB9C7D105B25613ccBe01dbe8180FC934f4Ea5445";
 const AVALANCHE_TESTNET_API = "https://api.avax-test.network/ext/bc/C/rpc";
-const POLYGON_TESTNET = "0xd4d39251Ea91fa3536f40cfF77a34b311d659CeD";
+const POLYGON_TESTNET = "0xB57eb15B15076B291775687f45A4d83CE8B6a9Cb";
 const POLYGON_TESTNET_API = "https://rpc-mumbai.maticvigil.com/";
 
 export {

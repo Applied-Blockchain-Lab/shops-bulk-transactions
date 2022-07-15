@@ -17,7 +17,10 @@ async function main () {
   const ShopsBulkTransactions = await hre.ethers.getContractFactory(
     "ShopsBulkTransactions"
   );
-  const bulkTransactions = await ShopsBulkTransactions.deploy("AVAX","0xb6F32C6d8C23e5201Ec123644f11cf6F013d9363");
+  const bulkTransactions = await ShopsBulkTransactions.deploy(
+    "AVAX",
+    "0xb6F32C6d8C23e5201Ec123644f11cf6F013d9363"
+  );
 
   await bulkTransactions.deployed();
 
