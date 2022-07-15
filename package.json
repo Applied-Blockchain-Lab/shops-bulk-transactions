@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/Applied-Blockchain-Lab/shops-bulk-transactions#readme",
   "devDependencies": {
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.3",
     "@nomiclabs/hardhat-waffle": "^2.0.3",
     "chai": "^4.3.6",
     "eslint": "^8.19.0",

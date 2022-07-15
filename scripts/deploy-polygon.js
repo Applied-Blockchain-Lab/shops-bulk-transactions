@@ -5,7 +5,7 @@
 // Runtime Environment's members available in the global scope.
 const hre = require("hardhat");
 
-async function main() {
+async function main () {
   // Hardhat always runs the compile task when running scripts with its command
   // line interface.
   //
@@ -17,7 +17,7 @@ async function main() {
   const ShopsBulkTransactions = await hre.ethers.getContractFactory(
     "ShopsBulkTransactions"
   );
-  const bulkTransactions = await ShopsBulkTransactions.deploy("MATIC");
+  const bulkTransactions = await ShopsBulkTransactions.deploy("MATIC","0xb6F32C6d8C23e5201Ec123644f11cf6F013d9363");
 
   await bulkTransactions.deployed();
 

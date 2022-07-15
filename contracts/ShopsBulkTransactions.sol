@@ -1,11 +1,12 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.4;
 
+
+
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 contract ShopsBulkTransactions is ReentrancyGuard {
-
-    address ARBITRATOR = 0xb6F32C6d8C23e5201Ec123644f11cf6F013d9363;
+    address ARBITRATOR;
 
     struct Order {
         string product_hash;
@@ -29,8 +30,9 @@ contract ShopsBulkTransactions is ReentrancyGuard {
 
     string public symbol;
 
-    constructor(string memory _symbol) {
+    constructor(string memory _symbol, address arbitrator) {
         symbol = _symbol;
+        ARBITRATOR = arbitrator;
     }
 
     event MultiTransfer(uint256 _amount, bool _status);
@@ -40,8 +42,6 @@ contract ShopsBulkTransactions is ReentrancyGuard {
         (bool sent, ) = _to.call{value: _amount}("");
         require(sent, string(abi.encodePacked("Failed to send ", symbol)));
     }
-
-
 
     function arbitratorProccessTransaction(
         address[] memory _clients,
@@ -57,17 +57,23 @@ contract ShopsBulkTransactions is ReentrancyGuard {
             _clients.length == _productHashes.length,
             "Addresses length must be equal to product hashes length"
         );
-          require(
+        require(
             _clients.length == _sellers.length,
             "Clients length must be equal to sellers length"
         );
-        
 
         for (uint256 i = 0; i < _clients.length; i++) {
-            arbitratorDecision(_clients[i],_sellers[i] , _values[i], 1, _productHashes[i]);
+            arbitratorDecision(
+                _clients[i],
+                _sellers[i],
+                _values[i],
+                1,
+                _productHashes[i]
+            );
         }
     }
-     function arbitratorRevertTransaction(
+
+    function arbitratorRevertTransaction(
         address[] memory _clients,
         address[] memory _sellers,
         uint256[] memory _values,
@@ -81,25 +87,30 @@ contract ShopsBulkTransactions is ReentrancyGuard {
             _clients.length == _productHashes.length,
             "Addresses length must be equal to product hashes length"
         );
-          require(
+        require(
             _clients.length == _sellers.length,
             "Clients length must be equal to sellers length"
         );
-        
 
         for (uint256 i = 0; i < _clients.length; i++) {
-            arbitratorDecision(_clients[i],_sellers[i] , _values[i], 2, _productHashes[i]);
+            arbitratorDecision(
+                _clients[i],
+                _sellers[i],
+                _values[i],
+                2,
+                _productHashes[i]
+            );
         }
     }
 
-      function arbitratorDecision(
+    function arbitratorDecision(
         address client,
         address sellar,
         uint256 value,
         uint8 arbitratorChoice,
         string memory productHash
     ) internal {
-        bytes32 index = keccak256(abi.encodePacked(client,sellar));
+        bytes32 index = keccak256(abi.encodePacked(client, sellar));
         for (uint256 i = 0; i < activeOrders[index].length; i++) {
             if (
                 (keccak256(bytes(activeOrders[index][i].product_hash)) ==
@@ -125,7 +136,7 @@ contract ShopsBulkTransactions is ReentrancyGuard {
                         payable(activeOrders[index][i].client),
                         activeOrders[index][i].value
                     );
-                } 
+                }
                 break;
             }
         }
@@ -144,7 +155,7 @@ contract ShopsBulkTransactions is ReentrancyGuard {
             _clients.length == _productHashes.length,
             "Addresses length must be equal to product hashes length"
         );
-        
+       
 
         for (uint256 i = 0; i < _clients.length; i++) {
             sellerDecision(_clients[i], _values[i], 1, _productHashes[i]);
@@ -189,6 +200,7 @@ contract ShopsBulkTransactions is ReentrancyGuard {
                 );
                 activeOrders[index][i].sellerDecision = sellerChoice;
                 uint8 decision = checkDecisions(activeOrders[index][i]);
+                
                 if (decision == 1) {
                     activeOrders[index][i].active = false;
                     _safeCall(
@@ -201,8 +213,11 @@ contract ShopsBulkTransactions is ReentrancyGuard {
                         payable(activeOrders[index][i].client),
                         activeOrders[index][i].value
                     );
-                } else if (activeOrders[index][i].deadline < block.timestamp && 
-                activeOrders[index][i].clientDecision==0){
+                } else if (
+                    activeOrders[index][i].deadline < block.timestamp &&
+                    activeOrders[index][i].clientDecision == 0
+                ) {
+                  
                     activeOrders[index][i].active = false;
                     _safeCall(
                         payable(activeOrders[index][i].seller),
@@ -291,9 +306,9 @@ contract ShopsBulkTransactions is ReentrancyGuard {
     function checkDecisions(Order memory order) internal pure returns (uint8) {
         if (order.clientDecision == order.sellerDecision) {
             return order.clientDecision;
-        } else if(order.clientDecision == order.arbitratorDecision) {
+        } else if (order.clientDecision == order.arbitratorDecision) {
             return order.clientDecision;
-        } else if(order.arbitratorDecision == order.sellerDecision){
+        } else if (order.arbitratorDecision == order.sellerDecision) {
             return order.arbitratorDecision;
         }
     }
@@ -436,7 +451,7 @@ contract ShopsBulkTransactions is ReentrancyGuard {
             o.arbitrator = ARBITRATOR;
             o.sellerDecision = 1;
             o.clientDecision = 0;
-            o.arbitratorDecision=0;
+            o.arbitratorDecision = 0;
             o.value = _amounts[i];
             o.product_hash = _productHashes[i];
             o.deadline = block.timestamp + (30 * 24 * 60 * 60);
