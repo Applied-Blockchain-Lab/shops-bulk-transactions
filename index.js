@@ -60,8 +60,7 @@ export async function clientProccessTransaction (
   blockchain,
   network,
   sellers,
-  values,
-  productHashes
+  orderHashes
 ) {
   const config = getConfig(blockchain, network);
   const provider = ethers.getDefaultProvider(config.rpcProvider);
@@ -73,8 +72,7 @@ export async function clientProccessTransaction (
 
   const tx = await contract.populateTransaction.clientProccessTransaction(
     sellers,
-    values,
-    productHashes
+    orderHashes
   );
   return tx;
 }
@@ -83,8 +81,7 @@ export async function clientRevertTransaction (
   blockchain,
   network,
   sellers,
-  values,
-  productHashes
+  orderHashes
 ) {
   const config = getConfig(blockchain, network);
   const provider = ethers.getDefaultProvider(config.rpcProvider);
@@ -96,8 +93,7 @@ export async function clientRevertTransaction (
 
   const tx = await contract.populateTransaction.clientRevertTransaction(
     sellers,
-    values,
-    productHashes
+    orderHashes
   );
   return tx;
 }
@@ -106,8 +102,7 @@ export async function sellerRevertTransaction (
   blockchain,
   network,
   clients,
-  values,
-  productHashes
+  orderHashes
 ) {
   const config = getConfig(blockchain, network);
   const provider = ethers.getDefaultProvider(config.rpcProvider);
@@ -119,8 +114,7 @@ export async function sellerRevertTransaction (
 
   const tx = await contract.populateTransaction.sellerRevertTransaction(
     clients,
-    values,
-    productHashes
+    orderHashes
   );
   return tx;
 }
@@ -129,8 +123,7 @@ export async function sellerProccessTransaction (
   blockchain,
   network,
   clients,
-  values,
-  productHashes
+  orderHashes
 ) {
   const config = getConfig(blockchain, network);
   const provider = ethers.getDefaultProvider(config.rpcProvider);
@@ -141,8 +134,7 @@ export async function sellerProccessTransaction (
   );
   const tx = await contract.populateTransaction.sellerProccessTransaction(
     clients,
-    values,
-    productHashes
+    orderHashes
   );
   return tx;
 }

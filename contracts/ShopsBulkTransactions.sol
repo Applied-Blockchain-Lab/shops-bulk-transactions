@@ -7,7 +7,8 @@ contract ShopsBulkTransactions is ReentrancyGuard {
     address ARBITRATOR;
 
     struct Order {
-        string product_hash;
+        bytes32 orderHash;
+        string productHash;
         uint256 value;
         address client;
         address seller;
@@ -41,19 +42,30 @@ contract ShopsBulkTransactions is ReentrancyGuard {
         require(sent, string(abi.encodePacked("Failed to send ", symbol)));
     }
 
+    function calculateNewHash(Order storage order) internal{
+        order.orderHash = keccak256(
+                abi.encodePacked(
+                order.client,
+                order.seller,
+                order.arbitrator,
+                order.sellerDecision,
+                order.clientDecision,
+                order.arbitratorDecision,
+                order.value,
+                order.productHash,
+                order.deadline,
+                order.active)
+            );
+    }
+
     function arbitratorProccessTransaction(
         address[] memory _clients,
         address[] memory _sellers,
-        uint256[] memory _values,
-        string[] memory _productHashes
+        bytes32[] memory _orderHashes
     ) external nonReentrant {
         require(
-            _clients.length == _values.length,
-            "Addresses length must be equal to values length"
-        );
-        require(
-            _clients.length == _productHashes.length,
-            "Addresses length must be equal to product hashes length"
+            _clients.length == _orderHashes.length,
+            "Addresses length must be equal to order hashes length."
         );
         require(
             _clients.length == _sellers.length,
@@ -64,9 +76,8 @@ contract ShopsBulkTransactions is ReentrancyGuard {
             arbitratorDecision(
                 _clients[i],
                 _sellers[i],
-                _values[i],
                 1,
-                _productHashes[i]
+                _orderHashes[i]
             );
         }
     }
@@ -74,16 +85,11 @@ contract ShopsBulkTransactions is ReentrancyGuard {
     function arbitratorRevertTransaction(
         address[] memory _clients,
         address[] memory _sellers,
-        uint256[] memory _values,
-        string[] memory _productHashes
+        bytes32[] memory _orderHashes
     ) external nonReentrant {
-        require(
-            _clients.length == _values.length,
-            "Addresses length must be equal to values length"
-        );
-        require(
-            _clients.length == _productHashes.length,
-            "Addresses length must be equal to product hashes length"
+          require(
+            _clients.length == _orderHashes.length,
+            "Addresses length must be equal to order hashes length."
         );
         require(
             _clients.length == _sellers.length,
@@ -94,9 +100,8 @@ contract ShopsBulkTransactions is ReentrancyGuard {
             arbitratorDecision(
                 _clients[i],
                 _sellers[i],
-                _values[i],
                 2,
-                _productHashes[i]
+                _orderHashes[i]
             );
         }
     }
@@ -104,16 +109,13 @@ contract ShopsBulkTransactions is ReentrancyGuard {
     function arbitratorDecision(
         address client,
         address sellar,
-        uint256 value,
         uint8 arbitratorChoice,
-        string memory productHash
+        bytes32 orderHash
     ) internal {
         bytes32 index = keccak256(abi.encodePacked(client, sellar));
         for (uint256 i = 0; i < activeOrders[index].length; i++) {
             if (
-                (keccak256(bytes(activeOrders[index][i].product_hash)) ==
-                    keccak256(bytes(productHash))) &&
-                (activeOrders[index][i].value == value) &&
+                (activeOrders[index][i].orderHash == orderHash) &&
                 (activeOrders[index][i].active == true)
             ) {
                 require(
@@ -124,12 +126,14 @@ contract ShopsBulkTransactions is ReentrancyGuard {
                 uint8 decision = checkDecisions(activeOrders[index][i]);
                 if (decision == 1) {
                     activeOrders[index][i].active = false;
+                    calculateNewHash( activeOrders[index][i]);
                     _safeCall(
                         payable(activeOrders[index][i].seller),
                         activeOrders[index][i].value
                     );
                 } else if (decision == 2) {
                     activeOrders[index][i].active = false;
+                    calculateNewHash( activeOrders[index][i]);
                     _safeCall(
                         payable(activeOrders[index][i].client),
                         activeOrders[index][i].value
@@ -142,55 +146,51 @@ contract ShopsBulkTransactions is ReentrancyGuard {
 
     function sellerProccessTransaction(
         address[] memory _clients,
-        uint256[] memory _values,
-        string[] memory _productHashes
+        bytes32[] memory _orderHashes
     ) external nonReentrant {
         require(
-            _clients.length == _values.length,
-            "Addresses length must be equal to values length"
+            _clients.length == _orderHashes.length,
+            "Addresses length must be equal to order hashes length."
         );
         require(
-            _clients.length == _productHashes.length,
-            "Addresses length must be equal to product hashes length"
+            _clients.length > 0,
+            "No parameters."
         );
 
         for (uint256 i = 0; i < _clients.length; i++) {
-            sellerDecision(_clients[i], _values[i], 1, _productHashes[i]);
+            sellerDecision(_clients[i], 1, _orderHashes[i]);
         }
     }
 
     function sellerRevertTransaction(
         address[] memory _clients,
-        uint256[] memory _values,
-        string[] memory _productHashes
+        bytes32[] memory _orderHashes
     ) external nonReentrant {
         require(
-            _clients.length == _values.length,
-            "Addresses length must be equal to values length"
+            _clients.length == _orderHashes.length,
+            "Addresses length must be equal to order hashes length."
         );
         require(
-            _clients.length == _productHashes.length,
-            "Addresses length must be equal to product hashes length"
+            _clients.length > 0,
+            "No parameters."
         );
         for (uint256 i = 0; i < _clients.length; i++) {
-            sellerDecision(_clients[i], _values[i], 2, _productHashes[i]);
+            sellerDecision(_clients[i], 2, _orderHashes[i]);
         }
     }
 
     function sellerDecision(
         address client,
-        uint256 value,
         uint8 sellerChoice,
-        string memory productHash
+        bytes32 orderHash
     ) internal {
         bytes32 index = keccak256(abi.encodePacked(client, msg.sender));
         for (uint256 i = 0; i < activeOrders[index].length; i++) {
             if (
-                (keccak256(bytes(activeOrders[index][i].product_hash)) ==
-                    keccak256(bytes(productHash))) &&
-                (activeOrders[index][i].value == value) &&
+                (activeOrders[index][i].orderHash == orderHash) &&
                 (activeOrders[index][i].active == true)
-            ) {
+               ) 
+            {
                 require(
                     activeOrders[index][i].seller == msg.sender,
                     "You are not the seller."
@@ -200,12 +200,14 @@ contract ShopsBulkTransactions is ReentrancyGuard {
 
                 if (decision == 1) {
                     activeOrders[index][i].active = false;
+                    calculateNewHash( activeOrders[index][i]);
                     _safeCall(
                         payable(activeOrders[index][i].seller),
                         activeOrders[index][i].value
                     );
                 } else if (decision == 2) {
                     activeOrders[index][i].active = false;
+                    calculateNewHash( activeOrders[index][i]);
                     _safeCall(
                         payable(activeOrders[index][i].client),
                         activeOrders[index][i].value
@@ -215,6 +217,7 @@ contract ShopsBulkTransactions is ReentrancyGuard {
                     activeOrders[index][i].clientDecision == 0
                 ) {
                     activeOrders[index][i].active = false;
+                    calculateNewHash( activeOrders[index][i]);
                     _safeCall(
                         payable(activeOrders[index][i].seller),
                         activeOrders[index][i].value
@@ -225,54 +228,51 @@ contract ShopsBulkTransactions is ReentrancyGuard {
         }
     }
 
+    
+
     function clientProccessTransaction(
         address[] memory _sellers,
-        uint256[] memory _values,
-        string[] memory _productHashes
+        bytes32[] memory _orderHashes
     ) external nonReentrant {
         require(
-            _sellers.length == _values.length,
-            "Addresses length must be equal to values length"
+            _sellers.length ==  _orderHashes.length,
+            "Addresses length must be equal to order hashes length."
         );
         require(
-            _sellers.length == _productHashes.length,
-            "Addresses length must be equal to product hashes length"
+            _sellers.length > 0,
+            "No parameters."
         );
         for (uint256 i = 0; i < _sellers.length; i++) {
-            clientDecision(_sellers[i], _values[i], 1, _productHashes[i]);
+            clientDecision(_sellers[i], 1, _orderHashes[i]);
         }
     }
 
     function clientRevertTransaction(
         address[] memory _sellers,
-        uint256[] memory _values,
-        string[] memory _productHashes
+        bytes32[] memory _orderHashes
     ) external nonReentrant {
         require(
-            _sellers.length == _values.length,
-            "Addresses length must be equal to values length"
+            _sellers.length ==  _orderHashes.length,
+            "Addresses length must be equal to order hashes length."
         );
         require(
-            _sellers.length == _productHashes.length,
-            "Addresses length must be equal to product hashes length"
+            _sellers.length > 0,
+            "No parameters."
         );
         for (uint256 i = 0; i < _sellers.length; i++) {
-            clientDecision(_sellers[i], _values[i], 2, _productHashes[i]);
+            clientDecision(_sellers[i], 2, _orderHashes[i]);
         }
     }
 
     function clientDecision(
         address seller,
-        uint256 value,
         uint8 clientChoice,
-        string memory productHash
+        bytes32  orderHash
     ) internal {
         bytes32 index = keccak256(abi.encodePacked(msg.sender, seller));
         for (uint256 i = 0; i < activeOrders[index].length; i++) {
             if (
-                (keccak256(bytes(activeOrders[index][i].product_hash)) ==
-                    keccak256(bytes(productHash))) &&
-                (activeOrders[index][i].value == value) &&
+                (activeOrders[index][i].orderHash == orderHash) &&
                 (activeOrders[index][i].active == true)
             ) {
                 require(
@@ -283,12 +283,14 @@ contract ShopsBulkTransactions is ReentrancyGuard {
                 uint8 decision = checkDecisions(activeOrders[index][i]);
                 if (decision == 1) {
                     activeOrders[index][i].active = false;
+                    calculateNewHash( activeOrders[index][i]);
                     _safeCall(
                         payable(activeOrders[index][i].seller),
                         activeOrders[index][i].value
                     );
                 } else if (decision == 2) {
                     activeOrders[index][i].active = false;
+                    calculateNewHash( activeOrders[index][i]);
                     _safeCall(
                         payable(activeOrders[index][i].client),
                         activeOrders[index][i].value
@@ -410,7 +412,7 @@ contract ShopsBulkTransactions is ReentrancyGuard {
             Order[] memory currentOrders = activeOrders[indexes[i]];
             for (uint256 j = 0; j < currentOrders.length; j++) {
                 if (
-                    keccak256(bytes(currentOrders[j].product_hash)) ==
+                    keccak256(bytes(currentOrders[j].productHash)) ==
                     keccak256(bytes(productHash))
                 ) {
                     count++;
@@ -449,9 +451,22 @@ contract ShopsBulkTransactions is ReentrancyGuard {
             o.clientDecision = 0;
             o.arbitratorDecision = 0;
             o.value = _amounts[i];
-            o.product_hash = _productHashes[i];
+            o.productHash = _productHashes[i];
             o.deadline = block.timestamp + (30 * 24 * 60 * 60);
             o.active = true;
+            o.orderHash = keccak256(
+                abi.encodePacked(
+                o.client,
+                o.seller,
+                o.arbitrator,
+                o.sellerDecision,
+                o.clientDecision,
+                o.arbitratorDecision,
+                o.value,
+                o.productHash,
+                o.deadline,
+                o.active)
+            );
             bytes32 index = keccak256(
                 abi.encodePacked(msg.sender, _addresses[i])
             );
