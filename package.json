@@ -1,9 +1,11 @@
 {
   "name": "shops-bulk-transactions",
-  "version": "1.6.2",
+  "version": "1.7.1",
   "description": "",
   "main": "index.js",
   "type": "module",
+  
+
   "scripts": {
     "test": "echo \"Error: no test specified\"",
     "prettier": "prettier . --write",

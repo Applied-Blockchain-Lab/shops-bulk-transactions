@@ -9,6 +9,7 @@ contract ShopsBulkTransactions is ReentrancyGuard {
     struct Order {
         bytes32 orderHash;
         string productHash;
+        string clientWebId;
         uint256 value;
         address client;
         address seller;
@@ -42,7 +43,25 @@ contract ShopsBulkTransactions is ReentrancyGuard {
         require(sent, string(abi.encodePacked("Failed to send ", symbol)));
     }
 
-   
+    function calculateHash(Order memory order) internal pure returns (bytes32){
+       bytes32 orderHash = keccak256(
+                    abi.encodePacked(
+                        order.client,
+                        order.seller,
+                        order.arbitrator,
+                        order.sellerDecision,
+                        order.clientDecision,
+                        order.arbitratorDecision,
+                        order.value,
+                        order.productHash,
+                        order.clientWebId,
+                        order.deadline,
+                        order.active
+                    )
+                );
+
+        return orderHash;
+    }
 
     function arbitratorProccessTransaction(
         address[] memory _clients,
@@ -99,58 +118,19 @@ contract ShopsBulkTransactions is ReentrancyGuard {
                     "You are not the arbitrator."
                 );
                 activeOrders[index][i].arbitratorDecision = arbitratorChoice;
-                 activeOrders[index][i].orderHash =  keccak256(
-            abi.encodePacked(
-                activeOrders[index][i].client,
-               activeOrders[index][i].seller,
-               activeOrders[index][i].arbitrator,
-               activeOrders[index][i].sellerDecision,
-               activeOrders[index][i].clientDecision,
-               activeOrders[index][i].arbitratorDecision,
-               activeOrders[index][i].value,
-               activeOrders[index][i].productHash,
-               activeOrders[index][i].deadline,
-               activeOrders[index][i].active
-            )
-        );
+                activeOrders[index][i].orderHash = calculateHash(activeOrders[index][i]);
                 uint8 decision = checkDecisions(activeOrders[index][i]);
                 if (decision == 1) {
                     activeOrders[index][i].active = false;
-                    activeOrders[index][i].orderHash =  keccak256(
-            abi.encodePacked(
-                activeOrders[index][i].client,
-               activeOrders[index][i].seller,
-               activeOrders[index][i].arbitrator,
-               activeOrders[index][i].sellerDecision,
-               activeOrders[index][i].clientDecision,
-               activeOrders[index][i].arbitratorDecision,
-               activeOrders[index][i].value,
-               activeOrders[index][i].productHash,
-               activeOrders[index][i].deadline,
-               activeOrders[index][i].active
-            )
-        );
-                  
+                    activeOrders[index][i].orderHash =  calculateHash(activeOrders[index][i]);
+
                     _safeCall(
                         payable(activeOrders[index][i].seller),
                         activeOrders[index][i].value
                     );
                 } else if (decision == 2) {
                     activeOrders[index][i].active = false;
-                      activeOrders[index][i].orderHash =  keccak256(
-            abi.encodePacked(
-                activeOrders[index][i].client,
-               activeOrders[index][i].seller,
-               activeOrders[index][i].arbitrator,
-               activeOrders[index][i].sellerDecision,
-               activeOrders[index][i].clientDecision,
-               activeOrders[index][i].arbitratorDecision,
-               activeOrders[index][i].value,
-               activeOrders[index][i].productHash,
-               activeOrders[index][i].deadline,
-               activeOrders[index][i].active
-            )
-        );
+                    activeOrders[index][i].orderHash = calculateHash(activeOrders[index][i]);
                     _safeCall(
                         payable(activeOrders[index][i].client),
                         activeOrders[index][i].value
@@ -206,58 +186,19 @@ contract ShopsBulkTransactions is ReentrancyGuard {
                     "You are not the seller."
                 );
                 activeOrders[index][i].sellerDecision = sellerChoice;
-                 activeOrders[index][i].orderHash =  keccak256(
-            abi.encodePacked(
-                activeOrders[index][i].client,
-               activeOrders[index][i].seller,
-               activeOrders[index][i].arbitrator,
-               activeOrders[index][i].sellerDecision,
-               activeOrders[index][i].clientDecision,
-               activeOrders[index][i].arbitratorDecision,
-               activeOrders[index][i].value,
-               activeOrders[index][i].productHash,
-               activeOrders[index][i].deadline,
-               activeOrders[index][i].active
-            )
-        );
+                activeOrders[index][i].orderHash = calculateHash(activeOrders[index][i]);
                 uint8 decision = checkDecisions(activeOrders[index][i]);
 
                 if (decision == 1) {
                     activeOrders[index][i].active = false;
-                     activeOrders[index][i].orderHash =  keccak256(
-            abi.encodePacked(
-                activeOrders[index][i].client,
-               activeOrders[index][i].seller,
-               activeOrders[index][i].arbitrator,
-               activeOrders[index][i].sellerDecision,
-               activeOrders[index][i].clientDecision,
-               activeOrders[index][i].arbitratorDecision,
-               activeOrders[index][i].value,
-               activeOrders[index][i].productHash,
-               activeOrders[index][i].deadline,
-               activeOrders[index][i].active
-            )
-        );
+                    activeOrders[index][i].orderHash =  calculateHash(activeOrders[index][i]);
                     _safeCall(
                         payable(activeOrders[index][i].seller),
                         activeOrders[index][i].value
                     );
                 } else if (decision == 2) {
                     activeOrders[index][i].active = false;
-                     activeOrders[index][i].orderHash =  keccak256(
-            abi.encodePacked(
-                activeOrders[index][i].client,
-               activeOrders[index][i].seller,
-               activeOrders[index][i].arbitrator,
-               activeOrders[index][i].sellerDecision,
-               activeOrders[index][i].clientDecision,
-               activeOrders[index][i].arbitratorDecision,
-               activeOrders[index][i].value,
-               activeOrders[index][i].productHash,
-               activeOrders[index][i].deadline,
-               activeOrders[index][i].active
-            )
-        );
+                    activeOrders[index][i].orderHash = calculateHash(activeOrders[index][i]);
                     _safeCall(
                         payable(activeOrders[index][i].client),
                         activeOrders[index][i].value
@@ -267,20 +208,7 @@ contract ShopsBulkTransactions is ReentrancyGuard {
                     activeOrders[index][i].clientDecision == 0
                 ) {
                     activeOrders[index][i].active = false;
-                     activeOrders[index][i].orderHash =  keccak256(
-            abi.encodePacked(
-                activeOrders[index][i].client,
-               activeOrders[index][i].seller,
-               activeOrders[index][i].arbitrator,
-               activeOrders[index][i].sellerDecision,
-               activeOrders[index][i].clientDecision,
-               activeOrders[index][i].arbitratorDecision,
-               activeOrders[index][i].value,
-               activeOrders[index][i].productHash,
-               activeOrders[index][i].deadline,
-               activeOrders[index][i].active
-            )
-        );
+                    activeOrders[index][i].orderHash =  calculateHash(activeOrders[index][i]);
                     _safeCall(
                         payable(activeOrders[index][i].seller),
                         activeOrders[index][i].value
@@ -335,58 +263,19 @@ contract ShopsBulkTransactions is ReentrancyGuard {
                     "You are not the client."
                 );
                 activeOrders[index][i].clientDecision = clientChoice;
-                 activeOrders[index][i].orderHash =  keccak256(
-            abi.encodePacked(
-                activeOrders[index][i].client,
-               activeOrders[index][i].seller,
-               activeOrders[index][i].arbitrator,
-               activeOrders[index][i].sellerDecision,
-               activeOrders[index][i].clientDecision,
-               activeOrders[index][i].arbitratorDecision,
-               activeOrders[index][i].value,
-               activeOrders[index][i].productHash,
-               activeOrders[index][i].deadline,
-               activeOrders[index][i].active
-            )
-        );
+                activeOrders[index][i].orderHash =  calculateHash(activeOrders[index][i]);
                 uint8 decision = checkDecisions(activeOrders[index][i]);
 
                 if (decision == 1) {
                     activeOrders[index][i].active = false;
-                      activeOrders[index][i].orderHash =  keccak256(
-            abi.encodePacked(
-                activeOrders[index][i].client,
-               activeOrders[index][i].seller,
-               activeOrders[index][i].arbitrator,
-               activeOrders[index][i].sellerDecision,
-               activeOrders[index][i].clientDecision,
-               activeOrders[index][i].arbitratorDecision,
-               activeOrders[index][i].value,
-               activeOrders[index][i].productHash,
-               activeOrders[index][i].deadline,
-               activeOrders[index][i].active
-            )
-        );
+                    activeOrders[index][i].orderHash = calculateHash(activeOrders[index][i]);
                     _safeCall(
                         payable(activeOrders[index][i].seller),
                         activeOrders[index][i].value
                     );
                 } else if (decision == 2) {
                     activeOrders[index][i].active = false;
-                     activeOrders[index][i].orderHash =  keccak256(
-            abi.encodePacked(
-                activeOrders[index][i].client,
-               activeOrders[index][i].seller,
-               activeOrders[index][i].arbitrator,
-               activeOrders[index][i].sellerDecision,
-               activeOrders[index][i].clientDecision,
-               activeOrders[index][i].arbitratorDecision,
-               activeOrders[index][i].value,
-               activeOrders[index][i].productHash,
-               activeOrders[index][i].deadline,
-               activeOrders[index][i].active
-            )
-        );
+                    activeOrders[index][i].orderHash = calculateHash(activeOrders[index][i]);
                     _safeCall(
                         payable(activeOrders[index][i].client),
                         activeOrders[index][i].value
@@ -522,7 +411,8 @@ contract ShopsBulkTransactions is ReentrancyGuard {
     function multiTransfer(
         address payable[] memory _addresses,
         uint256[] memory _amounts,
-        string[] memory _productHashes
+        string[] memory _productHashes,
+        string memory _clientWebId
     ) public payable nonReentrant {
         require(
             _addresses.length == _amounts.length,
@@ -547,23 +437,11 @@ contract ShopsBulkTransactions is ReentrancyGuard {
             o.clientDecision = 0;
             o.arbitratorDecision = 0;
             o.value = _amounts[i];
+            o.clientWebId=_clientWebId;
             o.productHash = _productHashes[i];
             o.deadline = block.timestamp + (30 * 24 * 60 * 60);
             o.active = true;
-            o.orderHash = keccak256(
-                abi.encodePacked(
-                    o.client,
-                    o.seller,
-                    o.arbitrator,
-                    o.sellerDecision,
-                    o.clientDecision,
-                    o.arbitratorDecision,
-                    o.value,
-                    o.productHash,
-                    o.deadline,
-                    o.active
-                )
-            );
+            o.orderHash =  calculateHash(o);
             bytes32 index = keccak256(
                 abi.encodePacked(msg.sender, _addresses[i])
             );

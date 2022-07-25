@@ -32,7 +32,8 @@ export async function sendBulkTransaction (
   network,
   addresses,
   amounts,
-  hashes
+  hashes,
+  webId
 ) {
   const config = getConfig(blockchain, network);
   const provider = ethers.getDefaultProvider(config.rpcProvider);
@@ -51,6 +52,7 @@ export async function sendBulkTransaction (
     addresses,
     amounts,
     hashes,
+    webId,
     { value: totalAmount }
   );
   return tx;

@@ -18,6 +18,7 @@ describe("ShopsBulkTransactions", function () {
       [accounts[1].address, accounts[2].address],
       [10, 10],
       ["hash1", "hash2"],
+      "webId",
       { value: 20 }
     );
     const activeOrders = await shops.clientCheckActiveOrders();
@@ -29,6 +30,7 @@ describe("ShopsBulkTransactions", function () {
         [accounts[1].address, accounts[2].address],
         [10, 10],
         ["hash1", "hash2"],
+        "webId",
         { value: 0 }
       )
     ).to.be.revertedWith("Total amount is less than current send amount");
@@ -42,15 +44,17 @@ describe("ShopsBulkTransactions", function () {
       [accounts[1].address, accounts[2].address],
       [10, 10],
       ["hash1", "hash2"],
+      "webId",
       { value: 20 }
     );
+    let orders = await shops.clientCheckActiveOrders();
     await shops.clientProccessTransaction(
       [accounts[1].address],
-      [10],
-      ["hash1"]
+      [orders[0].orderHash]
     );
     const balance11 = await ethers.provider.getBalance(accounts[1].address);
     const balance21 = await ethers.provider.getBalance(accounts[2].address);
+   
     expect(balance1.add(10)).to.equal(balance11);
     expect(balance2).to.equal(balance21);
   });
@@ -63,12 +67,13 @@ describe("ShopsBulkTransactions", function () {
       [accounts[1].address, accounts[2].address],
       [10, 10],
       ["hash1", "hash2"],
+      "webId",
       { value: 20 }
     );
+    let orders = await shops.clientCheckActiveOrders();
     await shops.clientProccessTransaction(
       [accounts[1].address],
-      [10],
-      ["hash1"]
+      [orders[0].orderHash]
     );
     const balance11 = await ethers.provider.getBalance(accounts[1].address);
     const balance21 = await ethers.provider.getBalance(accounts[2].address);
@@ -78,8 +83,7 @@ describe("ShopsBulkTransactions", function () {
     const balance3 = await ethers.provider.getBalance(shops.address);
     await shops.clientProccessTransaction(
       [accounts[1].address],
-      [10],
-      ["hash1"]
+      [orders[0].orderHash]
     );
     const balance31 = await ethers.provider.getBalance(shops.address);
     expect(balance3).to.equal(balance31);
@@ -92,13 +96,16 @@ describe("ShopsBulkTransactions", function () {
         [accounts[1].address, accounts[2].address],
         [10, 10],
         ["hash1", "hash2"],
+        "webId",
         { value: 20 }
       );
-    await shops.clientRevertTransaction([accounts[1].address], [10], ["hash1"]);
+      let orders = await shops.clientCheckActiveOrders();
+    await shops.clientRevertTransaction([accounts[1].address], [orders[0].orderHash]);
     const balance1 = await ethers.provider.getBalance(accounts[0].address);
+    let orders2 = await shops.connect(accounts[1]).sellerCheckActiveOrders();
     await shops
       .connect(accounts[1])
-      .sellerRevertTransaction([accounts[0].address], [10], ["hash1"]);
+      .sellerRevertTransaction([accounts[0].address], [orders2[0].orderHash]);
     const balance2 = await ethers.provider.getBalance(accounts[0].address);
     expect(balance1.add(10)).to.equal(balance2);
   });
@@ -110,13 +117,16 @@ describe("ShopsBulkTransactions", function () {
         [accounts[1].address, accounts[2].address],
         [10, 10],
         ["hash1", "hash2"],
+        "webId",
         { value: 20 }
       );
+      let orders = await shops.connect(accounts[1]).sellerCheckActiveOrders();
     await shops
       .connect(accounts[1])
-      .sellerRevertTransaction([accounts[0].address], [10], ["hash1"]);
+      .sellerRevertTransaction([accounts[0].address], [orders[0].orderHash]);
     const balance1 = await ethers.provider.getBalance(shops.address);
-    await shops.clientRevertTransaction([accounts[1].address], [10], ["hash1"]);
+    let orders2 = await shops.clientCheckActiveOrders();
+    await shops.clientRevertTransaction([accounts[1].address], [orders2[0].orderHash]);
     const balance2 = await ethers.provider.getBalance(shops.address);
     expect(balance1).to.equal(balance2.add(10));
   });
@@ -128,6 +138,7 @@ describe("ShopsBulkTransactions", function () {
         [accounts[1].address, accounts[1].address],
         [10, 10],
         ["hash1", "hash1"],
+        "webId",
         { value: 20 }
       );
     const orders = await shops.checkProductOrders(accounts[1].address, "hash1");
@@ -141,13 +152,14 @@ describe("ShopsBulkTransactions", function () {
         [accounts[1].address, accounts[2].address],
         [10, 10],
         ["hash1", "hash2"],
+        "webId",
         { value: 20 }
       );
     const activeOrders = await shops.clientCheckActiveOrders();
     expect(activeOrders.length).to.equal(2);
     await shops
       .connect(accounts[0])
-      .clientProccessTransaction([accounts[1].address], [10], ["hash1"]);
+      .clientProccessTransaction([accounts[1].address], [activeOrders[0].orderHash]);
     const activeOrders2 = await shops.clientCheckActiveOrders();
     expect(activeOrders2.length).to.equal(1);
     const orders = await shops.clientCheckOrders();
@@ -161,6 +173,7 @@ describe("ShopsBulkTransactions", function () {
         [accounts[1].address, accounts[2].address],
         [10, 10],
         ["hash1", "hash2"],
+        "webId",
         { value: 20 }
       );
     const activeOrders = await shops
@@ -169,7 +182,7 @@ describe("ShopsBulkTransactions", function () {
     expect(activeOrders.length).to.equal(1);
     await shops
       .connect(accounts[0])
-      .clientProccessTransaction([accounts[1].address], [10], ["hash1"]);
+      .clientProccessTransaction([accounts[1].address], [activeOrders[0].orderHash]);
     const activeOrders2 = await shops
       .connect(accounts[1])
       .sellerCheckActiveOrders();
@@ -185,15 +198,18 @@ describe("ShopsBulkTransactions", function () {
         [accounts[1].address, accounts[2].address],
         [100000000000000, 10],
         ["hash1", "hash2"],
+        "webId",
         { value: 100000000000010 }
       );
     const balance1 = await ethers.provider.getBalance(shops.address);
+    const orders = await shops
+    .connect(accounts[1])
+    .sellerCheckActiveOrders();
     await shops
       .connect(accounts[1])
       .sellerProccessTransaction(
         [accounts[0].address],
-        [100000000000000],
-        ["hash1"]
+        [orders[0].orderHash]
       );
     const balance2 = await ethers.provider.getBalance(shops.address);
     expect(Number(balance1)).to.equal(Number(balance2));
@@ -206,6 +222,7 @@ describe("ShopsBulkTransactions", function () {
         [accounts[1].address, accounts[2].address],
         [100000000000000, 10],
         ["hash1", "hash2"],
+        "webId",
         { value: 100000000000010 }
       );
 
@@ -214,13 +231,14 @@ describe("ShopsBulkTransactions", function () {
     );
 
     const balance1 = await ethers.provider.getBalance(accounts[1].address);
-
+    const orders = await shops
+    .connect(accounts[1])
+    .sellerCheckActiveOrders();
     await shops
       .connect(accounts[1])
       .sellerProccessTransaction(
         [accounts[0].address],
-        [100000000000000],
-        ["hash1"]
+        [orders[0].orderHash]
       );
 
     const balance2 = await ethers.provider.getBalance(accounts[1].address);
@@ -235,6 +253,7 @@ describe("ShopsBulkTransactions", function () {
         [accounts[1].address, accounts[2].address],
         [100000000000000, 10],
         ["hash1", "hash2"],
+        "webId",
         { value: 100000000000010 }
       );
 
@@ -243,13 +262,14 @@ describe("ShopsBulkTransactions", function () {
     );
 
     const balance1 = await ethers.provider.getBalance(accounts[1].address);
-
+    const orders = await shops
+    .connect(accounts[1])
+    .sellerCheckActiveOrders();
     await shops
       .connect(accounts[1])
       .sellerProccessTransaction(
         [accounts[0].address],
-        [100000000000000],
-        ["hash1"]
+        [orders[0].orderHash]
       );
 
     const balance2 = await ethers.provider.getBalance(accounts[1].address);
@@ -257,12 +277,14 @@ describe("ShopsBulkTransactions", function () {
     expect(Number(balance1)).to.lessThan(Number(balance2));
 
     const balance21 = await ethers.provider.getBalance(shops.address);
+    const orders2 = await shops
+    .connect(accounts[1])
+    .sellerCheckOrders();
     await shops
       .connect(accounts[1])
       .sellerProccessTransaction(
         [accounts[0].address],
-        [100000000000000],
-        ["hash1"]
+        [orders2[0].orderHash]
       );
     const balance22 = await ethers.provider.getBalance(shops.address);
     expect(Number(balance21)).to.be.equal(Number(balance22));
@@ -275,17 +297,19 @@ describe("ShopsBulkTransactions", function () {
         [accounts[1].address, accounts[2].address],
         [10, 10],
         ["hash1", "hash2"],
+        "webId",
         { value: 20 }
       );
-    await shops.clientRevertTransaction([accounts[1].address], [10], ["hash1"]);
+      const orders = await shops.clientCheckActiveOrders();
+    await shops.clientRevertTransaction([accounts[1].address], [orders[0].orderHash]);
     const balance1 = await ethers.provider.getBalance(accounts[0].address);
+    const orders2 = await shops.clientCheckActiveOrders();
     await shops
       .connect(accounts[9])
       .arbitratorRevertTransaction(
         [accounts[0].address],
         [accounts[1].address],
-        [10],
-        ["hash1"]
+        [orders2[0].orderHash]
       );
     const balance2 = await ethers.provider.getBalance(accounts[0].address);
     expect(balance1.add(10)).to.equal(balance2);
@@ -298,17 +322,19 @@ describe("ShopsBulkTransactions", function () {
         [accounts[1].address, accounts[2].address],
         [10, 10],
         ["hash1", "hash2"],
+        "webId",
         { value: 20 }
       );
-    await shops.clientRevertTransaction([accounts[1].address], [10], ["hash1"]);
+      const orders = await shops.clientCheckActiveOrders();
+    await shops.clientRevertTransaction([accounts[1].address], [orders[0].orderHash]);
     const balance1 = await ethers.provider.getBalance(accounts[1].address);
+    const orders2 = await shops.clientCheckActiveOrders();
     await shops
       .connect(accounts[9])
       .arbitratorProccessTransaction(
         [accounts[0].address],
         [accounts[1].address],
-        [10],
-        ["hash1"]
+        [orders2[0].orderHash]
       );
     const balance2 = await ethers.provider.getBalance(accounts[1].address);
     expect(balance1.add(10)).to.equal(balance2);
@@ -321,19 +347,21 @@ describe("ShopsBulkTransactions", function () {
         [accounts[1].address, accounts[2].address],
         [10, 10],
         ["hash1", "hash2"],
+        "webId",
         { value: 20 }
       );
-    await shops.clientRevertTransaction([accounts[1].address], [10], ["hash1"]);
-
+      const orders = await shops.clientCheckActiveOrders();
+    await shops.clientRevertTransaction([accounts[1].address], [orders[0].orderHash]);
+    const orders2 = await shops.clientCheckActiveOrders();
     await expect(
       shops
         .connect(accounts[0])
         .arbitratorProccessTransaction(
           [accounts[0].address],
           [accounts[1].address],
-          [10],
-          ["hash1"]
+          [orders2[0].orderHash]
         )
     ).to.be.revertedWith("You are not the arbitrator.");
   });
+  
 });
