@@ -1,4 +1,4 @@
-name: CI
+name: Publish Package to npmjs
 
 on:
   push:
@@ -10,12 +10,20 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Run a multi-line script
+      - uses: actions/checkout@v3
+      # Setup .npmrc file to publish to npm
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "16-x"
+          registry-url: "https://registry.npmjs.org"
+      - name: Run tests
         run: |
           echo "${{ secrets.PKEY }}" > .secret
           npm install
           npx hardhat test
+
+      - name: Publish package
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
