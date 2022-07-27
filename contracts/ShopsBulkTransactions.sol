@@ -127,7 +127,6 @@ contract ShopsBulkTransactions is ReentrancyGuard {
                     activeOrders[index][i].orderHash = calculateHash(
                         activeOrders[index][i]
                     );
-
                     _safeCall(
                         payable(activeOrders[index][i].seller),
                         activeOrders[index][i].value
@@ -142,6 +141,10 @@ contract ShopsBulkTransactions is ReentrancyGuard {
                         activeOrders[index][i].value
                     );
                 }
+                activeOrders[index][i] = activeOrders[index][
+                    activeOrders[index].length - 1
+                ];
+                activeOrders[index].pop();
                 break;
             }
         }
@@ -228,6 +231,10 @@ contract ShopsBulkTransactions is ReentrancyGuard {
                         activeOrders[index][i].value
                     );
                 }
+                activeOrders[index][i] = activeOrders[index][
+                    activeOrders[index].length - 1
+                ];
+                activeOrders[index].pop();
                 break;
             }
         }
@@ -301,6 +308,10 @@ contract ShopsBulkTransactions is ReentrancyGuard {
                         activeOrders[index][i].value
                     );
                 }
+                activeOrders[index][i] = activeOrders[index][
+                    activeOrders[index].length - 1
+                ];
+                activeOrders[index].pop();
                 break;
             }
         }
