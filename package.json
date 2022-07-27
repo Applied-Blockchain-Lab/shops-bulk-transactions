@@ -3,13 +3,15 @@
   "version": "1.7.2",
   "description": "",
   "main": "index.js",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "test": "echo \"Error: no test specified\"",
     "prettier": "prettier . --write",
     "solhint": "solhint -f table 'contracts/**/*.sol'",
     "lint": "eslint --fix \"**/*.js\"",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "hardhat:polygon": "npx hardhat run --network polygon_testnet scripts/deploy-polygon.js",
+    "hardhat:avalanche": "npx hardhat run --network avalanche_testnet scripts/deploy-avalanche.js"
   },
   "repository": {
     "type": "git",
@@ -36,12 +38,12 @@
     "prettier": "^2.7.1",
     "prettier-plugin-solidity": "^1.0.0-dev.22",
     "solhint": "^3.3.7",
-    "solhint-plugin-prettier": "^0.0.5"
+    "solhint-plugin-prettier": "^0.0.5",
+    "solidity-coverage": "^0.7.21"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.6.0",
     "ethers": "^5.6.9",
-    "module": "^1.2.5",
-    "solidity-coverage": "^0.7.21"
+    "module": "^1.2.5"
   }
 }
