@@ -47,8 +47,7 @@ describe("ShopsBulkTransactions", function () {
     ).to.be.revertedWith("Total amount is less than current send amount");
   });
 
-  it("Should send tokens to seller.", async function () {
-    const balance1 = await ethers.provider.getBalance(accounts[1].address);
+  it("Should send tokens to seller when both parties confirm", async function () {
     const balance2 = await ethers.provider.getBalance(accounts[2].address);
 
     await shops.multiTransfer(
@@ -58,6 +57,21 @@ describe("ShopsBulkTransactions", function () {
       "webId",
       { value: 20 }
     );
+
+    // Seller 1 confirms with shop account
+    const sellerOrders = await shops
+      .connect(accounts[1])
+      .sellerCheckActiveOrders();
+    await shops
+      .connect(accounts[1])
+      .sellerProccessTransaction(
+        [accounts[0].address],
+        [sellerOrders[0].orderHash]
+      );
+
+    const balance1 = await ethers.provider.getBalance(accounts[1].address);
+
+    // Client confirms
     const orders = await shops.clientCheckActiveOrders();
     await shops.clientProccessTransaction(
       [accounts[1].address],
@@ -71,7 +85,6 @@ describe("ShopsBulkTransactions", function () {
   });
 
   it("Should send tokens to seller only once.", async function () {
-    const balance1 = await ethers.provider.getBalance(accounts[1].address);
     const balance2 = await ethers.provider.getBalance(accounts[2].address);
 
     await shops.multiTransfer(
@@ -81,21 +94,39 @@ describe("ShopsBulkTransactions", function () {
       "webId",
       { value: 20 }
     );
+
+    // Seller 1 confirms with shop account
+    const sellerOrders = await shops
+      .connect(accounts[1])
+      .sellerCheckActiveOrders();
+    await shops
+      .connect(accounts[1])
+      .sellerProccessTransaction(
+        [accounts[0].address],
+        [sellerOrders[0].orderHash]
+      );
+
+    const balance1 = await ethers.provider.getBalance(accounts[1].address);
+
     const orders = await shops.clientCheckActiveOrders();
     await shops.clientProccessTransaction(
       [accounts[1].address],
       [orders[0].orderHash]
     );
+
     const balance11 = await ethers.provider.getBalance(accounts[1].address);
     const balance21 = await ethers.provider.getBalance(accounts[2].address);
+
     expect(balance1.add(10)).to.equal(balance11);
     expect(balance2).to.equal(balance21);
 
     const balance3 = await ethers.provider.getBalance(shops.address);
+
     await shops.clientProccessTransaction(
       [accounts[1].address],
       [orders[0].orderHash]
     );
+
     const balance31 = await ethers.provider.getBalance(shops.address);
     expect(balance3).to.equal(balance31);
   });
@@ -176,8 +207,6 @@ describe("ShopsBulkTransactions", function () {
         { value: 20 }
       );
 
-    
-
     await expect(
       shops.connect(accounts[0]).clientRevertTransaction([], [])
     ).to.be.revertedWith("No parameters.");
@@ -214,8 +243,6 @@ describe("ShopsBulkTransactions", function () {
         "webId",
         { value: 20 }
       );
-
-    
 
     await expect(
       shops.connect(accounts[0]).clientProccessTransaction([], [])
@@ -298,16 +325,20 @@ describe("ShopsBulkTransactions", function () {
         "webId",
         { value: 20 }
       );
+
     const activeOrders = await shops.clientCheckActiveOrders();
     expect(activeOrders.length).to.equal(2);
+
     await shops
       .connect(accounts[0])
       .clientProccessTransaction(
         [accounts[1].address],
         [activeOrders[0].orderHash]
       );
+
     const activeOrders2 = await shops.clientCheckActiveOrders();
-    expect(activeOrders2.length).to.equal(1);
+    expect(activeOrders2.length).to.equal(2);
+
     const orders = await shops.clientCheckOrders();
     expect(orders.length).to.equal(2);
   });
@@ -322,20 +353,24 @@ describe("ShopsBulkTransactions", function () {
         "webId",
         { value: 20 }
       );
+
     const activeOrders = await shops
       .connect(accounts[1])
       .sellerCheckActiveOrders();
     expect(activeOrders.length).to.equal(1);
+
     await shops
       .connect(accounts[0])
       .clientProccessTransaction(
         [accounts[1].address],
         [activeOrders[0].orderHash]
       );
+
     const activeOrders2 = await shops
       .connect(accounts[1])
       .sellerCheckActiveOrders();
-    expect(activeOrders2.length).to.equal(0);
+    expect(activeOrders2.length).to.equal(1);
+
     const orders = await shops.connect(accounts[1]).sellerCheckOrders();
     expect(orders.length).to.equal(1);
   });
@@ -457,13 +492,29 @@ describe("ShopsBulkTransactions", function () {
         "webId",
         { value: 20 }
       );
+
+    // Seller 1 confirms with shop account
+    const sellerOrders = await shops
+      .connect(accounts[1])
+      .sellerCheckActiveOrders();
+    await shops
+      .connect(accounts[1])
+      .sellerProccessTransaction(
+        [accounts[0].address],
+        [sellerOrders[0].orderHash]
+      );
+
+    const balance1 = await ethers.provider.getBalance(accounts[1].address);
+
     const orders = await shops.clientCheckActiveOrders();
+
     await shops.clientRevertTransaction(
       [accounts[1].address],
       [orders[0].orderHash]
     );
-    const balance1 = await ethers.provider.getBalance(accounts[1].address);
+
     const orders2 = await shops.clientCheckActiveOrders();
+
     await shops
       .connect(accounts[9])
       .arbitratorProccessTransaction(
@@ -471,6 +522,7 @@ describe("ShopsBulkTransactions", function () {
         [accounts[1].address],
         [orders2[0].orderHash]
       );
+
     const balance2 = await ethers.provider.getBalance(accounts[1].address);
     expect(balance1.add(10)).to.equal(balance2);
   });
