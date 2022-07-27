@@ -446,10 +446,9 @@ describe("ShopsBulkTransactions", function () {
     expect(Number(balance1)).to.lessThan(Number(balance2));
 
     const balance21 = await ethers.provider.getBalance(shops.address);
-    const orders2 = await shops.connect(accounts[1]).sellerCheckOrders();
     await shops
       .connect(accounts[1])
-      .sellerProccessTransaction([accounts[0].address], [orders2[0].orderHash]);
+      .sellerProccessTransaction([accounts[0].address], [orders[0].orderHash]);
     const balance22 = await ethers.provider.getBalance(shops.address);
     expect(Number(balance21)).to.be.equal(Number(balance22));
   });
