@@ -131,6 +131,10 @@ contract ShopsBulkTransactions is ReentrancyGuard {
                         payable(activeOrders[index][i].seller),
                         activeOrders[index][i].value
                     );
+                    activeOrders[index][i] = activeOrders[index][
+                        activeOrders[index].length - 1
+                    ];
+                    activeOrders[index].pop();
                 } else if (decision == 2) {
                     activeOrders[index][i].active = false;
                     activeOrders[index][i].orderHash = calculateHash(
@@ -140,11 +144,11 @@ contract ShopsBulkTransactions is ReentrancyGuard {
                         payable(activeOrders[index][i].client),
                         activeOrders[index][i].value
                     );
+                    activeOrders[index][i] = activeOrders[index][
+                        activeOrders[index].length - 1
+                    ];
+                    activeOrders[index].pop();
                 }
-                activeOrders[index][i] = activeOrders[index][
-                    activeOrders[index].length - 1
-                ];
-                activeOrders[index].pop();
                 break;
             }
         }
@@ -209,6 +213,10 @@ contract ShopsBulkTransactions is ReentrancyGuard {
                         payable(activeOrders[index][i].seller),
                         activeOrders[index][i].value
                     );
+                    activeOrders[index][i] = activeOrders[index][
+                        activeOrders[index].length - 1
+                    ];
+                    activeOrders[index].pop();
                 } else if (decision == 2) {
                     activeOrders[index][i].active = false;
                     activeOrders[index][i].orderHash = calculateHash(
@@ -218,6 +226,10 @@ contract ShopsBulkTransactions is ReentrancyGuard {
                         payable(activeOrders[index][i].client),
                         activeOrders[index][i].value
                     );
+                    activeOrders[index][i] = activeOrders[index][
+                        activeOrders[index].length - 1
+                    ];
+                    activeOrders[index].pop();
                 } else if (
                     activeOrders[index][i].deadline < block.timestamp &&
                     activeOrders[index][i].clientDecision == 0
@@ -230,11 +242,11 @@ contract ShopsBulkTransactions is ReentrancyGuard {
                         payable(activeOrders[index][i].seller),
                         activeOrders[index][i].value
                     );
+                    activeOrders[index][i] = activeOrders[index][
+                        activeOrders[index].length - 1
+                    ];
+                    activeOrders[index].pop();
                 }
-                activeOrders[index][i] = activeOrders[index][
-                    activeOrders[index].length - 1
-                ];
-                activeOrders[index].pop();
                 break;
             }
         }
@@ -298,6 +310,10 @@ contract ShopsBulkTransactions is ReentrancyGuard {
                         payable(activeOrders[index][i].seller),
                         activeOrders[index][i].value
                     );
+                    activeOrders[index][i] = activeOrders[index][
+                        activeOrders[index].length - 1
+                    ];
+                    activeOrders[index].pop();
                 } else if (decision == 2) {
                     activeOrders[index][i].active = false;
                     activeOrders[index][i].orderHash = calculateHash(
@@ -307,11 +323,11 @@ contract ShopsBulkTransactions is ReentrancyGuard {
                         payable(activeOrders[index][i].client),
                         activeOrders[index][i].value
                     );
+                    activeOrders[index][i] = activeOrders[index][
+                        activeOrders[index].length - 1
+                    ];
+                    activeOrders[index].pop();
                 }
-                activeOrders[index][i] = activeOrders[index][
-                    activeOrders[index].length - 1
-                ];
-                activeOrders[index].pop();
                 break;
             }
         }
