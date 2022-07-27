@@ -314,6 +314,8 @@ contract ShopsBulkTransactions is ReentrancyGuard {
         } else if (order.arbitratorDecision == order.sellerDecision) {
             return order.arbitratorDecision;
         }
+
+        return 0;
     }
 
     function sellerCheckOrders() external view returns (Order[] memory) {
@@ -453,7 +455,7 @@ contract ShopsBulkTransactions is ReentrancyGuard {
             o.client = msg.sender;
             o.seller = _addresses[i];
             o.arbitrator = ARBITRATOR;
-            o.sellerDecision = 1;
+            o.sellerDecision = 0;
             o.clientDecision = 0;
             o.arbitratorDecision = 0;
             o.value = _amounts[i];
